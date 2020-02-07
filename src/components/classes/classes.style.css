@@ -1,0 +1,113 @@
+.class-list-section{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.class-list-section .class-container { 
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.class-list-section .class-container .class-card{
+    width: 200px;
+    height: 200px;
+    margin: 2rem;
+    border-radius: 20px;
+    border: 1.5px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    cursor: pointer;
+    
+}
+
+.class-list-section .class-container .class-card .class-card-action-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.class-list-section .class-container .class-card h1{
+    font-size: 1.7rem;
+    font-weight: bold;
+    text-align: center;
+    color: #000;
+    margin: 0;
+}
+
+.class-subjects{
+
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.class-subjects .class-subjects-heading{
+    padding: 2rem;
+}
+
+.class-subjects .class-subjects-list{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.class-subjects .class-subjects-list .subject-tag{
+    width: 220px;
+    height: 50px;
+    margin: 0 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1.5px solid black;
+    border-radius: 20px;
+}
+
+.class-subjects .class-subjects-list .subject-tag h1{
+    font-size: 1rem;
+    margin: 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.class-subjects .class-students-headings{
+    padding: 2rem;
+}
+
+.class-subjects .class-students-list{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.create-class-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.create-class-container .create-class-form {
+    width: 20%;
+}
