@@ -4,7 +4,7 @@ import pwd from './assets/password.png';
 import { connect } from 'react-redux';
 import { signIn } from '../../store/actions/authActions';
 import { Redirect } from 'react-router-dom';
-
+import firebase from '../../config/fbConfig';
 class SignIn extends React.Component{
 
     state = {
@@ -20,7 +20,12 @@ class SignIn extends React.Component{
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.props.signIn(this.state);
+        firebase.firestore().collection('admins').where('email','==',this.state.email).get()
+        .then(snap=>{
+            snap.forEach(doc=>{
+                this.props.signIn(this.state);
+            })
+        })
     }
 
     render() {

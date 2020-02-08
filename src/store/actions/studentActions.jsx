@@ -64,7 +64,8 @@ export const updateStudentProfile = (profile) => {
             gender: profile.gender,
             dob: profile.dob,
             gName: profile.gname,
-            gPhone: profile.gphone
+            gPhone: profile.gphone,
+            subjects:profile.subjects
         }).then(()=>{
             dispatch({
                 type: 'UPDATE_SUCCESS',

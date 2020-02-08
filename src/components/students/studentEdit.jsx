@@ -2,9 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { firestoreConnect } from 'react-redux-firebase';
-import { updateStudentProfile } from '../../store/actions/studentActions';
 import firebase from '../../config/fbConfig';
 import './studentEdit.style.css';
+import history from '../../index';
 
 
 class StudentEdit extends React.Component{
@@ -29,10 +29,47 @@ class StudentEdit extends React.Component{
                 fees:[],
                 results:[],
                 upcoming:[],
-                toggle: false
+                toggle: false,
+                toggle2:false,
+                month:'',
+                amount:''
             }
     }
-
+    componentDidMount(){
+        var id=this.props.id;
+        var x=[];
+        firebase.firestore().collection('students').where('email','==',id).get()
+        .then(snap=>{
+            snap.forEach(doc=>{
+                firebase.firestore().collection("classes").where("class","==",doc.data().class).get()
+                .then(snap=>{
+                    snap.forEach(doc2=>{
+                        this.setState({
+                            data :doc2.data().subjects,
+                            subjectslist:[]
+                        })
+                    })
+                    var csub=doc.data().subjects;
+                    this.state.data.map((y)=>{
+                            if(csub.includes(y.name))
+                            {
+                                y['present']=true;
+                                this.setState({
+                                    subjectslist : [...this.state.subjectslist,y]
+                                })
+                            }
+                            else{
+                                y['present']=false;
+                                this.setState({
+                                    subjectslist : [...this.state.subjectslist,y]
+                                })
+                            }
+                    })
+                    
+                })
+            })
+        })
+    }
     handleEdit = (student, x) => {
         this.setState({
             id: student.id,
@@ -47,10 +84,8 @@ class StudentEdit extends React.Component{
             gname: student.gName,
             gphone: student.gPhone,
             subjects: student.subjects,
-            subjectslist : student.subjects,
-            toggle : true
+            toggle:true
         })
-        console.log(x);
     }
 
     handleImageChange=(e)=>{
@@ -105,12 +140,21 @@ class StudentEdit extends React.Component{
         let index;
         if (e.target.checked) {
           options.push(e.target.value)
-        } 
+        }
         else {
           index = options.indexOf(e.target.value)
-          options.splice(index, 1)
+          options.splice(index, 1);
+          var x={};
+          x=this.state.subjectslist;
+          x.map(ii=>{
+            if(ii.name===e.target.value)
+            {
+                ii['present']=false
+            }
+            console.log(ii);
+          })
         }
-        this.setState({ subjects: options })
+        this.setState({ subject: options })
     }
 
 
@@ -118,28 +162,49 @@ class StudentEdit extends React.Component{
         const { value, name } = e.target;
 		this.setState({ [name]: value });
 	};
-
-    handleSave = () => {
-        this.props.updateStudentProfile(this.state);
-        this.setState({
-            id:'',
-            photo: '',
-            name: '',
-            email:'',
-            address: '',
-            phone: '',
-            gender: '',
-            dob: '',
-            gname: '',
-            gphone: '',
-            subjects: '',
-            toggle: false
+    handleFees=()=>{
+        firebase.firestore().collection('students').doc(this.state.id).get()
+        .then(snap=>{
+            var fees={},x={},final={};
+            fees=snap.data().fees;
+            x['Month']=this.state.month;
+            x['Amount']=this.state.amount;
+            x['paid']=true;
+            final=fees.concat(x);
+            firebase.firestore().collection('students').doc(this.state.id).update({
+                fees:final
+            }).then(()=>{
+                this.setState({
+                    toggle2:false
+                })
+            }).catch((err)=>{
+                console.log(err);
+            })
         })
+    }
+    handleSave = () => {
+        firebase.firestore().collection('students').doc(this.state.id).update({
+            photo: this.state.photo,
+            name: this.state.name,
+            email: this.state.email,
+            address: this.state.address,
+            phone: this.state.phone,
+            gender: this.state.gender,
+            dob: this.state.dob,
+            gName: this.state.gname,
+            gPhone: this.state.gphone,
+            subjects:this.state.subjects
+        }).then(()=>{
+            history.go(0);
+        }).catch((err)=>{
+            console.log(err);
+        })
+        
     }
 
     render (){
         const { student, editStatus, x } = this.props;
-
+        var i=1;
        return(
           <div>
               {
@@ -151,21 +216,24 @@ class StudentEdit extends React.Component{
                                     ?
                                     <>
                                         <button onClick={this.handleSave} class="waves-effect waves-light btn-small green"><i class="material-icons">done</i></button>
-                                        <button onClick={()=>{this.setState({toggle:false})}} class="waves-effect waves-light btn-small red"><i class="material-icons">cancel</i></button>
+                                        <button onClick={()=>{this.setState({toggle:false});history.go(0)}} class="waves-effect waves-light btn-small red"><i class="material-icons">cancel</i></button>
                                     </>
                                     :
                                         <button onClick={()=>this.handleEdit(item, x)} class="waves-effect waves-light btn-small black"><i class="material-icons">edit</i></button>
                                     }    
                             </div>
-                            <div className="editBox">
+                            <div className="editBox" style={{padding:'1rem'}}>
                                 <div className="edit-input">
-                                    <label htmlFor="photo">Photo</label>
-                                    <input type="file" id="photo" onChange={this.handleImageChange} />
+                                    <label htmlFor="photo">Photo:</label>
                                     {
-                                        this.state.toggle ? 
-                                        <img src={this.state.photo} alt="photo" style={{width:"100px",height:"100px"}}/>
+                                        this.state.toggle
+                                        ?
+                                        <>
+                                        <img src={this.state.photo} alt="photo" style={{width:"100px",height:"100px",marginLeft:'1rem'}}/>
+                                        <input type="file" id="photo" onChange={this.handleImageChange} />
+                                        </>
                                         :
-                                        <img src={item.photo} alt="photo" style={{width:"100px",height:"100px"}}/>
+                                        <img src={item.photo} alt="photo" style={{width:"100px",height:"100px",marginLeft:'1rem'}}/>
                                     }
                                 </div>
                                 <div className="edit-input">
@@ -218,15 +286,6 @@ class StudentEdit extends React.Component{
                                 <label htmlFor="dob">Gender:</label>
                                     {
                                         this.state.toggle ?
-                                        <>
-                                            <label>
-                                                <input type="radio" id="gender" name="gender" value="male" onChange={this.handleChange} /><span>Male</span>
-                                            </label>
-                                            <label>
-                                                <input type="radio" id="gender" name="gender" value="female" onChange={this.handleChange} /><span>Female</span>
-                                            </label>
-                                        </>
-                                        :
                                         item.gender == 'male' ?
                                         <> 
                                             <label>
@@ -245,6 +304,8 @@ class StudentEdit extends React.Component{
                                                 <input type="radio" id="gender" name="gender" value="female" onChange={this.handleChange} checked="checked"/><span>Female</span>
                                             </label>
                                         </>
+                                        :
+                                        <p>{item.gender}</p>
                                     }   
 
                                     
@@ -299,29 +360,110 @@ class StudentEdit extends React.Component{
                                         this.state.toggle ? 
                                         <>
                                             {this.state.subjectslist && this.state.subjectslist.map((sub)=>{
-                                                return(
-                                                    <label>
-                                                        <input type="checkbox" value={sub.name} onChange={this.handleArrayChange}/>
-                                                        <span>{sub.name}</span>
-                                                    </label>
-                                                )
+                                                if(sub.present)
+                                                {
+                                                    return(
+                                                        <label style={{marginLeft:'0.5rem'}}>
+                                                            <input type="checkbox" checked value={sub.name} onChange={this.handleArrayChange}/>
+                                                            <span>{sub.name}</span>
+                                                        </label>
+                                                    )
+                                                }
+                                                else{
+                                                    return(
+                                                        <label style={{marginLeft:'0.5rem'}}>
+                                                            <input type="checkbox" value={sub.name} onChange={this.handleArrayChange}/>
+                                                            <span>{sub.name}</span>
+                                                        </label>
+                                                    )
+                                                }
                                             })}
                                         </>
                                         :
-                                        <>
+                                        <div style={{display:'flex'}}>
                                         { item.subjects.map((sub)=>{
-                                            return(
-                                                    <label>
-                                                        <input type="checkbox" value={sub.name} onChange={this.handleArrayChange} checked/>
-                                                        <span>{sub}</span>
-                                                    </label>
-                                                )
-                                            })}
-                                        </>
+                                            if(item.subjects.length>i){
+                                                i++;
+                                                return(
+                                                    <p>{sub},</p>
+                                                    )
+                                            }
+                                            else{
+                                                return(
+                                                    <p>{sub}</p>
+                                                    )
+                                            }
+                                        })}
+                                        </div>
                                     }
                                     
                                 </div>
-
+                                {
+                                    this.state.toggle
+                                    ?
+                                    <div className="edit-input">
+                                        <div className="edit-input">
+                                            <label>Fees:</label>
+                                            <div>
+                                                { item.fees.map((fee)=>{
+                                                    return(
+                                                        <div style={{display:'flex'}}>
+                                                            <p>Month: {fee.Month}</p>
+                                                            <p style={{marginLeft:'5px'}}>Amount: {fee.Amount}</p>
+                                                        </div>
+                                                        )
+                                                })}
+                                            </div>
+                                        </div>
+                                        <button class="btn-floating btn-small waves-effect waves-light" id="add_sub" onClick={()=>this.setState({toggle2:true})} style={{marginRight:"20px"}}><i class="material-icons">add</i></button>
+                                        {this.state.toggle2
+                                        ?
+                                        <div>
+                                            <div style={{border:"1.5px solid black",borderRadius:"15px", padding:"1rem"}}>
+                                                <input name="month" type="text" placeholder="Month" onChange={this.handleChange}></input>
+                                                <input name="amount" type="text" placeholder="Amount" onChange={this.handleChange}></input>
+                                                <button class="btn-floating btn-small waves-effect waves-light" onClick={this.handleFees}><i class="material-icons">check</i></button>
+                                                <button onClick={()=>{this.setState({toggle2:false})}} class="waves-effect waves-light btn-small red" style={{float:"right"}}><i class="material-icons">cancel</i></button>
+                                            </div>
+                                        </div>
+                                        :
+                                        null
+                                        }
+                                    </div>
+                                    :
+                                    <div className="edit-input">
+                                        <label>Fees:</label>
+                                        <div>
+                                            { item.fees.map((fee)=>{
+                                                return(
+                                                    <div style={{display:'flex'}}>
+                                                        <p>Month: {fee.Month}</p>
+                                                        <p style={{marginLeft:'5px'}}>Amount: {fee.Amount}</p>
+                                                    </div>
+                                                    )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
+                                {this.state.toggle
+                                    ?
+                                    null
+                                    :
+                                    <div className="edit-input">
+                                        <label>Attendance:</label>
+                                        <div>
+                                            { item.attendance.map((atttend)=>{
+                                                return(
+                                                    <div style={{display:'flex'}}>
+                                                        <p>Day: {atttend.day}</p>
+                                                        <p style={{marginLeft:'5px'}}>Time: {atttend.time}</p>
+                                                        <p style={{marginLeft:'5px'}}>Subject: {atttend.subject}</p>
+                                                    </div>
+                                                    )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     )
@@ -344,14 +486,8 @@ const mapStateToProps = (state, ownProps) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return{
-        updateStudentProfile : (profile) => dispatch(updateStudentProfile(profile))
-    }
-}
-
 export default compose(
-    connect(mapStateToProps, mapDispatchToProps),
+    connect(mapStateToProps),
     firestoreConnect(props => {
         if(props){
             return [

@@ -12,8 +12,15 @@ import CreateClass from './components/classes/createClass';
 import CreateTeacher from './components/teachers/createTeacher';
 import TeacherList from './components/teachers/teacherList';
 import TeacherEdit from './components/teachers/teacherEdit';
+import firebase from './config/fbConfig';
 
 class App extends React.Component{
+	constructor(){
+		super();
+		this.state={
+			user:firebase.auth().currentUser
+		}
+	}
   render () {
     return (
 		<BrowserRouter>

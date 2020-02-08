@@ -63,6 +63,21 @@ class ClassDetails extends React.Component{
         });
         
     }
+    handleSubDelete=(e)=>{
+        var someArray2={};
+        this.props.classDetail.map(i=>{
+            someArray2=i.subjects
+        })
+        someArray2 = someArray2.filter( el => el.name !== e );
+        firebase.firestore().collection('classes').where('class','==',this.props.item).get()
+        .then(snap=>{
+            snap.forEach(doc=>{
+                firebase.firestore().collection('classes').doc(doc.id).update({
+                    subjects:someArray2
+                })
+            })
+        })
+    }
 
     handleDelete = (id) => {
         this.props.deleteStudent(id);
@@ -95,7 +110,8 @@ class ClassDetails extends React.Component{
                 <div className="class-subjects-list">
                     {i && i.map(sub=>(
                         <div className="subject-tag">
-                            <h1 style={{marginRight:"20px"}}>{sub}</h1><button class="btn-floating btn-small waves-effect waves-light red"><i class="material-icons">clear</i></button>
+                            <h1 style={{marginRight:"20px"}}>{sub}</h1>
+                            <button class="btn-floating btn-small waves-effect waves-light red" onClick={()=>this.handleSubDelete(sub)}><i class="material-icons">clear</i></button>
                         </div>  
                     ))}
                     {this.state.classSubject && this.state.classSubject.map((y)=>{
