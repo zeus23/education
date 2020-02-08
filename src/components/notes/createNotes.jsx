@@ -78,7 +78,7 @@ class CreateNote extends React.Component{
     }
 
     handleSubmit = () => {
-        console.log(this.state.subject);
+        var count=0,subjects=[],prevNotes = {},prevTopics = {},id;
         firebase.storage().ref(`notes/${this.state.class}/${this.state.subject}/${this.state.topic}/${this.state.name}`).put(this.state.pdf)
         .then(()=>{
             firebase.storage().ref(`notes/${this.state.class}/${this.state.subject}/${this.state.topic}`).child(this.state.name).getDownloadURL().then(url=>{
@@ -88,44 +88,46 @@ class CreateNote extends React.Component{
                 firebase.firestore().collection('notes').where("class", "==", this.state.class)
                 .get()
                 .then(snap=>{
-                    if(snap){
+                        if(snap.docs.length>0){
                         snap.forEach(doc=>{
-                            if(doc.data().subject === this.state.subject){
-                                var prevNotes = {}, final = [],finalNotes={}, prevTopics = {}, x = {};
-                                x['Topic'] = this.state.topic;
-                                x['name'] = this.state.name;
-                                x['pdflink'] = this.state.pdfLink;
+                            subjects.push(doc.data().subject);
+                            if(doc.data().subject===this.state.subject){
                                 prevNotes = doc.data().pdflist;
-                                final = [...final,x];
-                                finalNotes=final.concat(prevNotes);
                                 prevTopics = doc.data().Topic;
-                                prevTopics.push(this.state.topic);
-                                firebase.firestore().collection("notes").doc(doc.id).update({
-                                    pdflist :finalNotes,
-                                    Topic: prevTopics
-                                }).then(()=>{
-                                    console.log("done");
-                                }).catch((err)=>{
-                                    console.log(err);
-                                })
-                                console.log("CASE1");
-                            }
-                            else{
-                                var x = {}, y=[], pdflis = [];
-                                y.push(this.state.topic);
-                                x['Topic'] = this.state.topic;
-                                x['name'] = this.state.name;
-                                x['pdflink'] = this.state.pdfLink;
-                                pdflis = [...pdflis, x];
-                                firebase.firestore().collection('notes').add({
-                                    Topic:y,
-                                    class:this.state.class,
-                                    subject: this.state.subject,
-                                    pdflist : pdflis
-                                })
-                                console.log("CASE2");
+                                id=doc.id
                             }
                         })
+                                if(subjects.includes(this.state.subject)){
+                                    var  final = [],finalNotes={}, x = {};
+                                    x['Topic'] = this.state.topic;
+                                    x['name'] = this.state.name;
+                                    x['pdflink'] = this.state.pdfLink;
+                                    final = [...final,x];
+                                    finalNotes=final.concat(prevNotes);
+                                    prevTopics.push(this.state.topic);
+                                    firebase.firestore().collection("notes").doc(id).update({
+                                        pdflist :finalNotes,
+                                        Topic: prevTopics
+                                    }).then(()=>{
+                                        console.log("done");
+                                    }).catch((err)=>{
+                                        console.log(err);
+                                    })
+                                }
+                                else{
+                                    var x = {}, y=[], pdflis = [];
+                                    y.push(this.state.topic);
+                                    x['Topic'] = this.state.topic;
+                                    x['name'] = this.state.name;
+                                    x['pdflink'] = this.state.pdfLink;
+                                    pdflis = [...pdflis, x];
+                                    firebase.firestore().collection('notes').add({
+                                        Topic:y,
+                                        class:this.state.class,
+                                        subject: this.state.subject,
+                                        pdflist : pdflis
+                                    })
+                                }
                     }
                     else{
                         var x = {}, y=[], pdflis = [];
@@ -140,10 +142,8 @@ class CreateNote extends React.Component{
                             subject: this.state.subject,
                             pdflist : pdflis
                         })
-                        console.log("CASE3");
                     }
-                    
-        })
+                })
             })
         })
         
