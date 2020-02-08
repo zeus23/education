@@ -1,4 +1,3 @@
-import React from 'react';
 export const classes = (details) => {
     return (dispatch, getState, {getFirebase, getFirestore}) => {
         const firebase = getFirebase();
