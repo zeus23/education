@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
-
+import $ from 'jquery';
 import { Link } from 'react-router-dom';
 import {deleteStudent} from '../../store/actions/studentActions';
 
@@ -12,13 +12,26 @@ class StudentList extends React.Component{
         this.props.deleteStudent(id);
     }
 
+    componentDidMount(){
+        $(document).ready(function(){
+            $("#searchInput").on("keyup", function() {
+              var value = $(this).val().toLowerCase();
+              $("#student-table tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+              });
+            });
+        });
+    }
+
     render() {
         const { stdList } = this.props;
-
         return(
             <div className="student-list-section" style={{width:"100%",display:"flex",justifyContent:"flex-start",flexDirection:"column",alignItems:"center"}}>
                 <a href="/createStudent" target="_blank" class="btn-floating btn-large waves-effect waves-light black" style={{margin:"1rem"}}><i class="material-icons">add</i></a>
                 <h3>Student List</h3>
+                <div style={{width:"100%",display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"flex-end"}}>
+                    <input id="searchInput" type="text" placeholder="Search.." style={{width:"20vw",margin:"1rem 0.5rem",padding:"0.2rem 1rem", border:"1px solid black", borderRadius:"10px"}}></input>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -36,7 +49,7 @@ class StudentList extends React.Component{
                             <th>ACTIONS</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="student-table">
                         {stdList && stdList.map((student)=>{
                             var i=1;
                             return(
@@ -82,7 +95,6 @@ class StudentList extends React.Component{
                                 </tr>
                             )
                         })}
-                        
                     </tbody>
                 </table>
             </div>

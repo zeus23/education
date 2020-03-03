@@ -5,7 +5,6 @@ import { compose } from 'redux';
 import { firestore } from 'firebase';
 import { Link } from 'react-router-dom';
 import firebase from '../../config/fbConfig';
-
 import { addSubs } from './../../store/actions/classActions';
 import {deleteStudent} from '../../store/actions/studentActions';
 
@@ -61,8 +60,8 @@ class ClassDetails extends React.Component{
             time:'',
             title:''
         });
-        
     }
+
     handleSubDelete=(e)=>{
         var someArray2={};
         this.props.classDetail.map(i=>{
@@ -109,8 +108,8 @@ class ClassDetails extends React.Component{
                 
                 <div className="class-subjects-list">
                     {i && i.map(sub=>(
-                        <div className="subject-tag">
-                            <h1 style={{marginRight:"20px"}}>{sub}</h1>
+                        <div className="subject-tag" style={{margin:"10px 20px"}}>
+                            <h1 style={{margin:"20px"}}>{sub}</h1>
                             <button class="btn-floating btn-small waves-effect waves-light red" onClick={()=>this.handleSubDelete(sub)}><i class="material-icons">clear</i></button>
                         </div>  
                     ))}

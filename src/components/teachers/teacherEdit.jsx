@@ -54,26 +54,26 @@ class TeacherEdit extends React.Component{
                     photo:''
                   });
             }
-          }
+        }
     }
 
     handleChange = (e) => {
         const { value, name } = e.target;
 		this.setState({ [name]: value });
-	};
+	}
 
     handleSave = () => {
         this.props.updateTeacherProfile(this.state);
         this.setState({
             id:'',
             photo: '',
-            name: '',
             email:'',
+            name: '',
             phone: '',
             gender: '',
             toggle: false
         })
-    };
+    }
 
     render (){
         const { teacher, editStatus} = this.props;
@@ -84,11 +84,11 @@ class TeacherEdit extends React.Component{
                   teacher && teacher.map(item=>{
                     return(
                         <div className="edit-area">
-                            <div className="edit-btn-box">
+                            <div className="edit-btn-box" style={{marginTop:"15px"}}>
                             {this.state.toggle 
                                     ?
                                     <>
-                                        <button onClick={this.handleSave} class="waves-effect waves-light btn-small green"><i class="material-icons">done</i></button>
+                                        <button onClick={this.handleSave} class="waves-effect waves-light btn-small green" style={{marginRight:"15px"}}><i class="material-icons">done</i></button>
                                         <button onClick={()=>{this.setState({toggle:false})}} class="waves-effect waves-light btn-small red"><i class="material-icons">cancel</i></button>
                                     </>
                                     :
@@ -96,16 +96,16 @@ class TeacherEdit extends React.Component{
                                     }    
                             </div>
 
-                            <div className="editBox">
+                            <div className="editBox" style={{padding:'1rem'}}>
 
                                 <div className="edit-input">
                                     <label htmlFor="photo">Photo</label>
                                     <input type="file" id="photo" onChange={this.handleImageChange} />
                                     {
                                         this.state.toggle ? 
-                                        <img src={this.state.photo} alt="photo" style={{width:"100px",height:"100px"}}/>
+                                        <img src={this.state.photo} alt="photo" style={{width:"100px",height:"100px",marginLeft:'1rem'}}/>
                                         :
-                                        <img src={item.photo} alt="photo" style={{width:"100px",height:"100px"}}/>
+                                        <img src={item.photo} alt="photo" style={{width:"100px",height:"100px",marginLeft:'1rem'}}/>
                                     }
                                 </div>
 
@@ -123,7 +123,7 @@ class TeacherEdit extends React.Component{
                                     <label htmlFor="email">Email:</label>
                                     {
                                         this.state.toggle ? 
-                                            <><input type="text" name="email" id="email" value={this.state.email}  onChange={this.handleChange}></input></>
+                                            <h6>{item.email}</h6> 
                                             :
                                             <h6>{item.email}</h6>   
                                     }
@@ -177,7 +177,7 @@ class TeacherEdit extends React.Component{
                     )
                 })
             }
-          </div>
+        </div>
        )
     }
 }

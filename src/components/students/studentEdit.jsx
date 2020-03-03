@@ -11,30 +11,35 @@ class StudentEdit extends React.Component{
     constructor(props){
         super(props);
         
-            this.state = {
-                id:'',
-                photo: '',
-                name: '',
-                email:'',
-                address: '',
-                phone: '',
-                gender: '',
-                dob: '',
-                gname: '',
-                gphone: '',
-                class:'',
-                subjectslist:[],
-                subjects:[],
-                data:[],
-                fees:[],
-                results:[],
-                upcoming:[],
-                toggle: false,
-                toggle2:false,
-                month:'',
-                amount:''
-            }
+        this.state = {
+            id:'',
+            photo: '',
+            name: '',
+            email:'',
+            address: '',
+            phone: '',
+            gender: '',
+            dob: '',
+            gname: '',
+            gphone: '',
+            class:'',
+            subjectslist:[],
+            subjects:[],
+            data:[],
+            fees:[],
+            results:[],
+            upcoming:[],
+            toggle: false,
+            toggle2:false,
+            toggle3:false,
+            marks:'',
+            testSub:'',
+            examDate:'',
+            month:'',
+            amount:''
+        }
     }
+
     componentDidMount(){
         var id=this.props.id;
         var x=[];
@@ -70,6 +75,7 @@ class StudentEdit extends React.Component{
             })
         })
     }
+
     handleEdit = (student, x) => {
         this.setState({
             id: student.id,
@@ -108,7 +114,7 @@ class StudentEdit extends React.Component{
                     photo:''
                   });
             }
-          }
+        }
     }
 
     handleSelect = (e) => {
@@ -157,11 +163,11 @@ class StudentEdit extends React.Component{
         this.setState({ subject: options })
     }
 
-
     handleChange = (e) => {
         const { value, name } = e.target;
 		this.setState({ [name]: value });
-	};
+    }
+    
     handleFees=()=>{
         firebase.firestore().collection('students').doc(this.state.id).get()
         .then(snap=>{
@@ -182,6 +188,47 @@ class StudentEdit extends React.Component{
             })
         })
     }
+
+    handleResult=()=>{
+        firebase.firestore().collection('students').doc(this.state.id).get()
+        .then(snap=>{
+            var result={},x={},final={};
+            result=snap.data().results;
+            x['subject']=this.state.testSub;
+            x['marks']=this.state.marks;
+            x['examDate'] = this.state.examDate;
+            final=result.concat(x);
+            firebase.firestore().collection('students').doc(this.state.id).update({
+                results:final
+            }).then(()=>{
+                this.setState({
+                    toggle3:false
+                })
+            }).catch((err)=>{
+                console.log(err);
+            })
+        })
+    }
+
+    handleResDelete = (e) => {
+        var someArray2={};
+        this.props.student.map(i=>{
+            someArray2=i.results
+        })
+        someArray2 = someArray2.filter( el => el.subject!== e );
+        console.log(someArray2);
+        firebase.firestore().collection('students').doc(this.state.id).update({
+            results:someArray2
+        }).then(()=>{
+            this.setState({
+                toggle3:false
+            })
+        }).catch((err)=>{
+            console.log(err);
+        })
+        console.log(e);
+    }
+
     handleSave = () => {
         firebase.firestore().collection('students').doc(this.state.id).update({
             photo: this.state.photo,
@@ -199,23 +246,22 @@ class StudentEdit extends React.Component{
         }).catch((err)=>{
             console.log(err);
         })
-        
     }
 
     render (){
-        const { student, editStatus, x } = this.props;
-        var i=1;
+    const { student, editStatus, x } = this.props;
+    var i=1;
        return(
           <div>
               {
                   student && student.map(item=>{
                     return(
                         <div className="edit-area">
-                            <div className="edit-btn-box">
+                            <div className="edit-btn-box" style={{marginTop:"15px"}}>
                             {this.state.toggle 
                                     ?
                                     <>
-                                        <button onClick={this.handleSave} class="waves-effect waves-light btn-small green"><i class="material-icons">done</i></button>
+                                        <button onClick={this.handleSave} class="waves-effect waves-light btn-small green" style={{marginRight:"15px"}}><i class="material-icons">done</i></button>
                                         <button onClick={()=>{this.setState({toggle:false});history.go(0)}} class="waves-effect waves-light btn-small red"><i class="material-icons">cancel</i></button>
                                     </>
                                     :
@@ -225,13 +271,11 @@ class StudentEdit extends React.Component{
                             <div className="editBox" style={{padding:'1rem'}}>
                                 <div className="edit-input">
                                     <label htmlFor="photo">Photo:</label>
+                                    <input type="file" id="photo" onChange={this.handleImageChange} />
                                     {
                                         this.state.toggle
                                         ?
-                                        <>
                                         <img src={this.state.photo} alt="photo" style={{width:"100px",height:"100px",marginLeft:'1rem'}}/>
-                                        <input type="file" id="photo" onChange={this.handleImageChange} />
-                                        </>
                                         :
                                         <img src={item.photo} alt="photo" style={{width:"100px",height:"100px",marginLeft:'1rem'}}/>
                                     }
@@ -398,6 +442,8 @@ class StudentEdit extends React.Component{
                                     }
                                     
                                 </div>
+
+
                                 {
                                     this.state.toggle
                                     ?
@@ -419,7 +465,7 @@ class StudentEdit extends React.Component{
                                         {this.state.toggle2
                                         ?
                                         <div>
-                                            <div style={{border:"1.5px solid black",borderRadius:"15px", padding:"1rem"}}>
+                                            <div style={{border:"1.5px solid black",borderRadius:"15px", padding:"1rem",marginTop:"15px"}}>
                                                 <input name="month" type="text" placeholder="Month" onChange={this.handleChange}></input>
                                                 <input name="amount" type="text" placeholder="Amount" onChange={this.handleChange}></input>
                                                 <button class="btn-floating btn-small waves-effect waves-light" onClick={this.handleFees}><i class="material-icons">check</i></button>
@@ -445,6 +491,7 @@ class StudentEdit extends React.Component{
                                         </div>
                                     </div>
                                 }
+
                                 {this.state.toggle
                                     ?
                                     null
@@ -464,6 +511,60 @@ class StudentEdit extends React.Component{
                                         </div>
                                     </div>
                                 }
+
+                                {
+                                    this.state.toggle
+                                    ?
+                                    <div className="edit-input">
+                                        <div className="edit-input">
+                                            <label>Result:</label>
+                                            <div>
+                                                { item.results && item.results.map((res)=>{
+                                                    return(
+                                                        <div style={{display:'flex'}}>
+                                                            <p>Subject: {res.subject}</p>
+                                                            <p style={{marginLeft:'5px'}}>Marks: {res.marks}</p>
+                                                            <p style={{marginLeft:'5px'}}>Date: {res.examDate}</p>
+                                                            <p style={{marginLeft:'15px'}}><button class="btn-floating btn-small waves-effect waves-light red" onClick={()=>this.handleResDelete(res.subject)}><i class="material-icons">clear</i></button></p>
+                                                        </div>
+                                                        )
+                                                })}
+                                            </div>
+                                        </div>
+                                        <button class="btn-floating btn-small waves-effect waves-light" id="add_result" onClick={()=>this.setState({toggle3:true})} style={{marginRight:"20px"}}><i class="material-icons">add</i></button>
+                                        {this.state.toggle3
+                                        ?
+                                        <div>
+                                            <div style={{border:"1.5px solid black",borderRadius:"15px", padding:"1rem",marginTop:"15px"}}>
+                                                <input name="testSub" type="text" placeholder="Subject" onChange={this.handleChange}></input>
+                                                <input name="marks" type="text" placeholder="Marks" onChange={this.handleChange}></input>
+                                                <input name="examDate" type="date" onChange={this.handleChange}></input>
+                                                <button class="btn-floating btn-small waves-effect waves-light" onClick={this.handleResult}><i class="material-icons">check</i></button>
+                                                <button onClick={()=>{this.setState({toggle3:false})}} class="waves-effect waves-light btn-small red" style={{float:"right"}}><i class="material-icons">cancel</i></button>
+                                            </div>
+                                        </div>
+                                        :
+                                        null
+                                        }
+                                    </div>
+                                    :
+                                    <div className="edit-input">
+                                        <label>Result:</label>
+                                        <div>
+                                            { item.results && item.results.map((res)=>{
+                                                return(
+                                                    <div style={{display:'flex'}}>
+                                                        <p>Subject: {res.subject}</p>
+                                                        <p style={{marginLeft:'5px'}}>Marks: {res.marks}</p>
+                                                        <p style={{marginLeft:'5px'}}>Date: {res.examDate}</p>
+                                                        
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
+
                             </div>
                         </div>
                     )
@@ -473,6 +574,7 @@ class StudentEdit extends React.Component{
        )
     }
 }
+
 const mapStateToProps = (state, ownProps) => {
     const id = ownProps.match.params.id;
     const student = state.firestore.ordered.students;

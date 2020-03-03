@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^7.2.1",
     "datatables.net": "^1.10.20",
     "firebase": "^7.7.0",
+    "firebase-admin": "^8.9.2",
     "history": "^4.10.1",
     "jquery": "^3.4.1",
     "react": "^16.12.0",

@@ -1,3 +1,4 @@
+
 export const addTeacher = (details) => {
     return (dispatch, getState, {getFirebase, getFirestore}) => {
         const firebase = getFirebase();
@@ -25,10 +26,12 @@ export const addTeacher = (details) => {
 }
 
 export const deleteTeacher= (id) => {
-    return(dispatch, getState, { getFirestore }) => {
+    return(dispatch, getState, { getFirestore , getFirebase}) => {
         const firestore = getFirestore();
+        const firebase = getFirebase();
         firestore.collection('teachers').doc(id).delete()
         .then(()=>{
+           
             dispatch({
                 type: 'DELETE_SUCCESS',
             });
@@ -47,7 +50,6 @@ export const updateTeacherProfile = (profile) => {
         firestore.collection('teachers').doc(profile.id).update({
             photo: profile.photo,
             name: profile.name,
-            email: profile.email,
             phone: profile.phone,
             gender: profile.gender,
         }).then(()=>{

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import SignedInLinks from './signedInLinks';
 import SignedOutLinks from './signedOutLinks';
+import logo from './spt-logo.jpeg';
 
 const Navbar = (props) => {
 
@@ -12,7 +13,7 @@ const Navbar = (props) => {
     return (
         <nav className="nav-wrapper grey darken-3">
             <div className="container">
-                <Link to="/" className="brand-logo"> Education </Link>
+                <Link to="/" className="brand-logo"><img src={logo} style={{height:"8.4vh"}}/></Link>
                 {links}
             </div>
         </nav>
