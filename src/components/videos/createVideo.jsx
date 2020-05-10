@@ -3,9 +3,9 @@ import { connect } from "react-redux";
 import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 import firebase from "../../config/fbConfig";
-import { addNotes } from "./../../store/actions/notesActions";
+import { addNotes } from "../../store/actions/notesActions";
 
-class CreateNote extends React.Component {
+class CreateVideo extends React.Component {
   state = {
     class: "",
     subjectslist: [],
@@ -13,8 +13,8 @@ class CreateNote extends React.Component {
     data: [],
     topic: "",
     name: "",
-    pdfLink: "",
-    pdf: "",
+    videoLink: "",
+    video: "",
     loading: false,
   };
 
@@ -73,7 +73,7 @@ class CreateNote extends React.Component {
     if (e.target.files[0]) {
       const file = e.target.files[0];
       this.setState({
-        pdf: file,
+        video: file,
       });
     }
   };
@@ -91,25 +91,25 @@ class CreateNote extends React.Component {
     firebase
       .storage()
       .ref(
-        `notes/${this.state.class}/${this.state.subject}/${this.state.topic}/${this.state.name}`
+        `videos/${this.state.class}/${this.state.subject}/${this.state.topic}/${this.state.name}`
       )
-      .put(this.state.pdf)
+      .put(this.state.video)
       .then(() => {
         firebase
           .storage()
           .ref(
-            `notes/${this.state.class}/${this.state.subject}/${this.state.topic}`
+            `videos/${this.state.class}/${this.state.subject}/${this.state.topic}`
           )
           .child(this.state.name)
           .getDownloadURL()
           .then((url) => {
             this.setState({
-              pdfLink: url,
+              videoLink: url,
             });
             console.log(url);
             firebase
               .firestore()
-              .collection("notes")
+              .collection("videos")
               .where("class", "==", this.state.class)
               .get()
               .then((snap) => {
@@ -118,7 +118,7 @@ class CreateNote extends React.Component {
                     subjects.push(doc.data().subject);
 
                     if (doc.data().subject === this.state.subject) {
-                      prevNotes = doc.data().pdflist;
+                      prevNotes = doc.data().list;
                       prevTopics = doc.data().Topic;
                       id = doc.id;
                       topics = doc.data().Topic;
@@ -127,21 +127,21 @@ class CreateNote extends React.Component {
                   if (subjects.includes(this.state.subject)) {
                     console.log(topics);
                     var final = [],
-                      finalNotes = {},
+                      finalVideos = {},
                       x = {};
                     x["Topic"] = this.state.topic;
                     x["name"] = this.state.name;
-                    x["pdflink"] = this.state.pdfLink;
+                    x["link"] = this.state.videoLink;
                     final = [...final, x];
-                    finalNotes = final.concat(prevNotes);
+                    finalVideos = final.concat(prevNotes);
                     prevTopics.push(this.state.topic);
                     if (topics.includes(this.state.topic)) {
                       firebase
                         .firestore()
-                        .collection("notes")
+                        .collection("videos")
                         .doc(id)
                         .update({
-                          pdflist: finalNotes,
+                          list: finalVideos,
                         })
                         .then(() => {
                           console.log("done");
@@ -155,10 +155,10 @@ class CreateNote extends React.Component {
                     } else {
                       firebase
                         .firestore()
-                        .collection("notes")
+                        .collection("videos")
                         .doc(id)
                         .update({
-                          pdflist: finalNotes,
+                          list: finalVideos,
                           Topic: prevTopics,
                         })
                         .then(() => {
@@ -174,20 +174,20 @@ class CreateNote extends React.Component {
                   } else {
                     var x = {},
                       y = [],
-                      pdflis = [];
+                      lis = [];
                     y.push(this.state.topic);
                     x["Topic"] = this.state.topic;
                     x["name"] = this.state.name;
-                    x["pdflink"] = this.state.pdfLink;
-                    pdflis = [...pdflis, x];
+                    x["link"] = this.state.videoLink;
+                    lis = [...lis, x];
                     firebase
                       .firestore()
-                      .collection("notes")
+                      .collection("videos")
                       .add({
                         Topic: y,
                         class: this.state.class,
                         subject: this.state.subject,
-                        pdflist: pdflis,
+                        list: lis,
                       })
                       .then(() => {
                         console.log("added");
@@ -199,20 +199,20 @@ class CreateNote extends React.Component {
                 } else {
                   var x = {},
                     y = [],
-                    pdflis = [];
+                    lis = [];
                   y.push(this.state.topic);
                   x["Topic"] = this.state.topic;
                   x["name"] = this.state.name;
-                  x["pdflink"] = this.state.pdfLink;
-                  pdflis = [...pdflis, x];
+                  x["link"] = this.state.videoLink;
+                  lis = [...lis, x];
                   firebase
                     .firestore()
-                    .collection("notes")
+                    .collection("videos")
                     .add({
                       Topic: y,
                       class: this.state.class,
                       subject: this.state.subject,
-                      pdflist: pdflis,
+                      list: lis,
                     })
                     .then(() => {
                       console.log("added");
@@ -222,10 +222,10 @@ class CreateNote extends React.Component {
                     });
                 }
               });
-          })
-          .catch((err) => {
-            console.log(err);
           });
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
 
@@ -233,7 +233,7 @@ class CreateNote extends React.Component {
     const { x } = this.props;
     return (
       <div className="container">
-        <h5 className="grey-text text-darken-3">Add New Notes Here</h5>
+        <h5 className="grey-text text-darken-3">Add New Video Here</h5>
 
         <form className="white">
           <div className="input-field">
@@ -313,7 +313,7 @@ class CreateNote extends React.Component {
               className="btn yellow lighten-1 z-depth-0"
               onClick={this.handleSubmit}
             >
-              Add Notes
+              Add Video
             </button>
           )}
         </div>
@@ -337,4 +337,4 @@ const mapDispatchToProps = (dispatch) => {
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
   firestoreConnect([{ collection: "classes" }])
-)(CreateNote);
+)(CreateVideo);
